@@ -41,10 +41,12 @@ function _multigraph_field_specs() {
     'required'    	      => 0,
     'widget_rows'             => 2,
     'widget_weight'           => 10,
-    'default_display_label'   => 'above',
-    'default_display_weight'  => 10, //qqq
-    'teaser_display_label'    => 'above',
-    'teaser_display_weight'   => 10, //qqq
+    'default_display_label'   => 'hidden',
+    'default_display_type'    => 'text_default',
+    'default_display_weight'  => 10,
+    'teaser_display_label'    => 'hidden',
+    'teaser_display_type'     => 'text_default',
+    'teaser_display_weight'   => 10,
   ));
 
   $field_specs[] = _multigraph_dimension_field(array(
@@ -53,10 +55,10 @@ function _multigraph_field_specs() {
     'description' 	      => 'The default width, in pixels, for this graph.  This width'
     .                            ' may be overridden any place where this graph is embedded.',
     'default_value' 	      => 500,
-    'min_value' 	      => 1, //qqq
-    'max_value' 	      => 2000, //qqq
-    'widget_weight' 	      => 20, //qqq
-    'default_display_weight'  => 20, //qqq
+    'min_value' 	      => 1,
+    'max_value' 	      => 2000,
+    'widget_weight' 	      => 20,
+    'default_display_weight'  => 20,
   ));
 
   $field_specs[] = _multigraph_dimension_field(array(
@@ -65,10 +67,10 @@ function _multigraph_field_specs() {
     'description' 	      => 'The default height, in pixels, for this graph.  This height'
     .                            ' may be overridden any place where this graph is embedded.',
     'default_value' 	      => 400,
-    'min_value' 	      => 1, //qqq
-    'max_value' 	      => 2000, //qqq
-    'widget_weight' 	      => 30, //qqq
-    'default_display_weight'  => 30, //qqq
+    'min_value' 	      => 1,
+    'max_value' 	      => 2000,
+    'widget_weight' 	      => 30,
+    'default_display_weight'  => 30,
   ));
 
   $field_specs[] = _multigraph_textarea_field_spec(array(
@@ -76,12 +78,14 @@ function _multigraph_field_specs() {
     'label'       	      => 'MUGL',
     'description' 	      => 'Enter the MUGL for this graph here.',
     'required'    	      => 1,
-    'widget_rows'             => 10, //qqq
-    'widget_weight'           => 40, //qqq
-    'default_display_label'   => 'above',
-    'default_display_weight'  => 40, //qqq
-    'teaser_display_label'    => 'above',
-    'teaser_display_weight'   => 40, //qqq
+    'widget_rows'             => 10,
+    'widget_weight'           => 40,
+    'default_display_label'   => 'hidden',
+    'default_display_type'    => 'hidden',
+    'default_display_weight'  => 40,
+    'teaser_display_label'    => 'hidden',
+    'teaser_display_type'     => 'hidden',
+    'teaser_display_weight'   => 40,
   ));
 
   return $field_specs;
@@ -135,13 +139,13 @@ function _multigraph_textarea_field_spec($field_spec_values) {
           'label'    => $field_spec_values['default_display_label'],
           'module'   => 'text',
           'settings' => array(),
-          'type'     => 'text_default',
+          'type'     => $field_spec_values['default_display_type'],
           'weight'   => $field_spec_values['default_display_weight'],
         ),
         'teaser' => array(
           'label'    => $field_spec_values['teaser_display_label'],
           'settings' => array(),
-          'type'     => 'hidden',
+          'type'     => $field_spec_values['teaser_display_type'],
           'weight'   => $field_spec_values['teaser_display_weight'],
         ),
       ),
@@ -209,7 +213,7 @@ function _multigraph_dimension_field($field_spec_values) {
       'deleted' => '0',
       'display' => array(
         'default' => array(
-          'label' => 'inline',
+          'label' => 'hidden',
           'module' => 'number',
           'settings' => array(
             'decimal_separator' => '.',
@@ -217,11 +221,11 @@ function _multigraph_dimension_field($field_spec_values) {
             'scale' => 0,
             'thousand_separator' => ' ',
           ),
-          'type' => 'number_integer',
+          'type' => 'hidden',
           'weight' => $field_spec_values['default_display_weight'],
         ),
         'teaser' => array(
-          'label' => 'above',
+          'label' => 'hidden',
           'settings' => array(),
           'type' => 'hidden',
           'weight' => 0,
@@ -237,7 +241,7 @@ function _multigraph_dimension_field($field_spec_values) {
  */
 function multigraph_uninstall() {
   // Gather all the example content that might have been created while this
-  // module was enabled.  
+  // module was enabled.
   $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
   $result = db_query($sql, array(':type' => 'multigraph'));
   $nids = array();

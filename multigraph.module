@@ -132,11 +132,13 @@ function multigraph_load($nodes) {
  */
  function multigraph_view($node, $view_mode) { 
    if ($view_mode == 'full') {
-     unset($node->multigraph_mugl);
      $node->content['graph'] = array(
-         '#markup' => theme('graph', array('graph' => 'graph goes here')),
-         '#weight' => 100,
-       );
+       '#markup' => theme('graph', array('mugl'   => $node->field_multigraph_mugl['und']['0']['value'],
+					 'width'  => $node->field_multigraph_width['und']['0']['value'],
+					 'height' => $node->field_multigraph_height['und']['0']['value'])),
+       '#weight' => 0,
+     );
+     unset($node->field_multigraph_mugl);
    }
 
  // Add and theme the sponsor so it appears when the multigraph is displayed
