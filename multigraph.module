@@ -14,10 +14,10 @@ function multigraph_node_info() {
     'multigraph' => array(
       'name'        => t('Multigraph'),
       'base'        => 'multigraph',
-      'description' => t('This is the description for the Multigraph content type.'),
+      'description' => t('Use <i>multigraphs</i> to create interactive graph content with Multigraph.'),
       'has_title'   => TRUE,
-      'title_label' => t('Graph Title'),
-      'help'        => t('Here is where the explanation and/or submission guidelines for the Multigraph content type go.'),
+      'title_label' => t('Title'),
+      'help'        => t('Enter a title, description, width, height, and the MUGL (xml) for a Multigraph.'),
     ),
   );
 }
@@ -36,12 +36,18 @@ function multigraph_form($node, $form_state) {
 function multigraph_menu_alter(&$callbacks) {
   // If the user does not have 'administer nodes' permission,
   // disable the multigraph menu item by setting its access callback to FALSE.
+  /*
+    ?????????
+    sometimes the following user_access() returns false, even for the admin user, even
+    when the admin user DOES still have 'administer nodes' perm.  WHY WHY WHY???
+    ?????????
   if (!user_access('administer nodes')) {
     $callbacks['node/add/multigraph']['access callback'] = FALSE;
     // Must unset access arguments or Drupal will use user_access()
     // as a default access callback.
     unset($callbacks['node/add/multigraph']['access arguments']);
   }
+  */
 }
 
 /**
@@ -140,7 +146,7 @@ function multigraph_load($nodes) {
    //        '#weight' => 100,
    //      );
    //  }
-   dsm($node);
+//   dsm($node);
   return $node; 
  } 
  

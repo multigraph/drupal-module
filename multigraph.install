@@ -7,15 +7,13 @@
 
 /**
  * Implements hook_install().
- *
- * - Add the body field.
  */
 function multigraph_install() {
   node_types_rebuild();
 
-  foreach (_multigraph_fields() as $field) {
-    field_create_field($field['field_config']);
-    $instance = $field['field_instance'];
+  foreach (_multigraph_field_specs() as $field_spec) {
+    field_create_field($field_spec['field_config']);
+    $instance = $field_spec['field_instance'];
     $instance['entity_type'] = 'node';
     $instance['bundle'] = 'multigraph';
     field_create_instance($instance);
@@ -23,14 +21,95 @@ function multigraph_install() {
 
 }
 
-function _multigraph_fields() {
+/*
+ * Return an array of "Field Spec" arrays, one for each field to be defined for the Multigraph
+ * content type.  Each Field Spec array has exactly two keys:
+ *    'field_config':   a field definition array, as expected by field_create_field()
+ *    'field_instance': a field instance definition array, as expected by field_create_instance()
+ * Note: the Field Spec array concept is just a convenience used within this module's code; it is
+ * not part of Drupal's Field API  The field definition array, and field instance definition array,
+ * however, are part of the Field API.
+ */
+function _multigraph_field_specs() {
 
-  $fields = array();
+  $field_specs = array();
 
-  $fields[] = array(
+  $field_specs[] = _multigraph_textarea_field_spec(array(
+    'field_name'  	      => 'field_multigraph_description',
+    'label'       	      => 'Description',
+    'description' 	      => 'Enter an optional description for this graph here.',
+    'required'    	      => 0,
+    'widget_rows'             => 2,
+    'widget_weight'           => 10,
+    'default_display_label'   => 'above',
+    'default_display_weight'  => 10, //qqq
+    'teaser_display_label'    => 'above',
+    'teaser_display_weight'   => 10, //qqq
+  ));
+
+  $field_specs[] = _multigraph_dimension_field(array(
+    'field_name' 	      => 'field_multigraph_width',
+    'label'      	      => 'Default Width',
+    'description' 	      => 'The default width, in pixels, for this graph.  This width'
+    .                            ' may be overridden any place where this graph is embedded.',
+    'default_value' 	      => 500,
+    'min_value' 	      => 1, //qqq
+    'max_value' 	      => 2000, //qqq
+    'widget_weight' 	      => 20, //qqq
+    'default_display_weight'  => 20, //qqq
+  ));
+
+  $field_specs[] = _multigraph_dimension_field(array(
+    'field_name' 	      => 'field_multigraph_height',
+    'label'      	      => 'Default Height',
+    'description' 	      => 'The default height, in pixels, for this graph.  This height'
+    .                            ' may be overridden any place where this graph is embedded.',
+    'default_value' 	      => 400,
+    'min_value' 	      => 1, //qqq
+    'max_value' 	      => 2000, //qqq
+    'widget_weight' 	      => 30, //qqq
+    'default_display_weight'  => 30, //qqq
+  ));
+
+  $field_specs[] = _multigraph_textarea_field_spec(array(
+    'field_name'  	      => 'field_multigraph_mugl',
+    'label'       	      => 'MUGL',
+    'description' 	      => 'Enter the MUGL for this graph here.',
+    'required'    	      => 1,
+    'widget_rows'             => 10, //qqq
+    'widget_weight'           => 40, //qqq
+    'default_display_label'   => 'above',
+    'default_display_weight'  => 40, //qqq
+    'teaser_display_label'    => 'above',
+    'teaser_display_weight'   => 40, //qqq
+  ));
+
+  return $field_specs;
+}
+
+
+/*
+ * Return a Field Spec array for an integer dimension field; this is used to define
+ * the Multigraph's "width" and "height" fields.  This function takes a single array
+ * argument having the following keys:
+ *
+ *    'field_name'  	       => 'field_multigraph_description'
+ *    'label'       	       => 'Description'
+ *    'description' 	       => 'Enter an optional description for this graph here.',
+ *    'required'    	       => 0
+ *    'widget_rows'            => '2'
+ *    'widget_weight'          => '-4'
+ *    'default_display_label   => 'above'
+ *    'default_display_weight  => '0'
+ *    'teaser_display_label    => 'above'
+ *    'teaser_display_weight   => '0'
+ */
+function _multigraph_textarea_field_spec($field_spec_values) {
+
+  return array(
 
     'field_config' => array(
-      'field_name'   => 'field_multigraph_description',
+      'field_name'   => $field_spec_values['field_name'],
       'type'         => 'text_long',
       'cardinality'  => '1',
       'active'       => '1',
@@ -38,66 +117,96 @@ function _multigraph_fields() {
     ),
 
     'field_instance' => array(
-      'default_value' => array(
-        0 => array(
-          'value' => 'This is the default value for the description field of the Multigraph content type.',
+      'field_name'  => $field_spec_values['field_name'],
+      'label'       => $field_spec_values['label'],
+      'description' => $field_spec_values['description'],
+      'required'    => $field_spec_values['required'],
+      'widget'      => array(
+        'active'      => 1,
+        'module'      => 'text',
+        'settings'    => array(
+          'rows'        => $field_spec_values['widget_rows'],
         ),
+        'type'        => 'text_textarea',
+        'weight'      => $field_spec_values['widget_weight'],
       ),
-      'deleted' => '0',
-      'description' => 'This is the help text for the description field of the Multigraph content type.',
       'display' => array(
         'default' => array(
-          'label' => 'above',
-          'module' => 'text',
+          'label'    => $field_spec_values['default_display_label'],
+          'module'   => 'text',
           'settings' => array(),
-          'type' => 'text_default',
-          'weight' => '0',
+          'type'     => 'text_default',
+          'weight'   => $field_spec_values['default_display_weight'],
         ),
         'teaser' => array(
-          'label' => 'above',
+          'label'    => $field_spec_values['teaser_display_label'],
           'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
+          'type'     => 'hidden',
+          'weight'   => $field_spec_values['teaser_display_weight'],
         ),
       ),
-      'field_name' => 'field_multigraph_description',
-      'label' => 'Description',
-      'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing'    => '0',
         'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 1,
-        'module' => 'text',
-        'settings' => array(
-          'rows' => '5',
-        ),
-        'type' => 'text_textarea',
-        'weight' => '-4',
       ),
     ),
 
   );
 
-  $fields[] = array(
+}
+
+
+
+/*
+ * Return a Field Spec array for an integer dimension field; this is used to define
+ * the Multigraph's "width" and "height" fields.  This function takes a single array
+ * argument having the following keys:
+ *
+ *   'field_name' 	      => 'field_multigraph_width'
+ *   'label'      	      => 'Default Width'
+ *   'description' 	      => 'The default width, in pixels, for this graph.  This width may be overridden any place where this graph is embedded.'
+ *   'default_value' 	      => '400'
+ *   'min_value' 	      => '1'
+ *   'max_value' 	      => '2000'
+ *   'widget_weight' 	      => '-2'
+ *   'default_display_weight' => '2'
+ */
+function _multigraph_dimension_field($field_spec_values) {
+
+
+  return array(
 
     'field_config' => array(
-      'field_name' => 'field_multigraph_width',
-      'type' => 'number_integer',
-      'cardinality' => '1',
-      'active' => '1',
-      'module' => 'number',
+      'field_name'   => $field_spec_values['field_name'],
+      'type'         => 'number_integer',
+      'cardinality'  => '1',
+      'active'       => '1',
+      'module'       => 'number',
     ),
 
     'field_instance' => array(
-      'default_value' => array(
-        0 => array(
-          'value' => '400',
-        ),
+      'field_name' => $field_spec_values['field_name'],
+      'label' => $field_spec_values['label'],
+      'required' => 1,
+      'description' => $field_spec_values['description'],
+      'default_value' => array(0 => array('value' => $field_spec_values['default_value'])),
+      'settings' => array(
+        'max'    => $field_spec_values['max_value'],
+	'min'    => $field_spec_values['min_value'],
+        'prefix' => '',
+        'suffix' => '',
+        'user_register_form' => FALSE,
       ),
+      'widget' => array(
+        'active'   => 0,
+        'module'   => 'number',
+        'settings' => array(),
+        'type'     => 'number',
+        'weight'   => $field_spec_values['widget_weight'],
+      ),
+
+
       'deleted' => '0',
-      'description' => 'This is the help text for the width field of the Multigtraph content type.',
       'display' => array(
         'default' => array(
           'label' => 'inline',
@@ -109,7 +218,7 @@ function _multigraph_fields() {
             'thousand_separator' => ' ',
           ),
           'type' => 'number_integer',
-          'weight' => '2',
+          'weight' => $field_spec_values['default_display_weight'],
         ),
         'teaser' => array(
           'label' => 'above',
@@ -118,132 +227,9 @@ function _multigraph_fields() {
           'weight' => 0,
         ),
       ),
-      'field_name' => 'field_multigraph_width',
-      'label' => 'Width',
-      'required' => 1,
-      'settings' => array(
-        'max' => '',
-        'min' => '1',
-        'prefix' => '',
-        'suffix' => '',
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 0,
-        'module' => 'number',
-        'settings' => array(),
-        'type' => 'number',
-        'weight' => '-2',
-      ),
     ),
   );
 
-  $fields[] = array(
-
-    'field_config' => array(
-      'field_name' => 'field_multigraph_height',
-      'type' => 'number_integer',
-      'cardinality' => '1',
-      'active' => '1',
-      'module' => 'number',
-    ),
-
-    'field_instance' => array(
-      'default_value' => array(
-        0 => array(
-          'value' => '300',
-        ),
-      ),
-      'deleted' => '0',
-      'description' => 'This is the help text for the height field of the Multigtraph content type.',
-      'display' => array(
-        'default' => array(
-          'label' => 'inline',
-          'module' => 'number',
-          'settings' => array(
-            'decimal_separator' => '.',
-            'prefix_suffix' => TRUE,
-            'scale' => 0,
-            'thousand_separator' => ' ',
-          ),
-          'type' => 'number_integer',
-          'weight' => '2',
-        ),
-        'teaser' => array(
-          'label' => 'above',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
-        ),
-      ),
-      'field_name' => 'field_multigraph_height',
-      'label' => 'Height',
-      'required' => 1,
-      'settings' => array(
-        'max' => '',
-        'min' => '1',
-        'prefix' => '',
-        'suffix' => '',
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 0,
-        'module' => 'number',
-        'settings' => array(),
-        'type' => 'number',
-        'weight' => '-2',
-      ),
-    ),
-  );
-
-  $fields[] = array(
-
-    'field_config' => array(
-      'field_name' => 'field_multigraph_mugl',
-      'module' => 'text',
-      'type' => 'text_long',
-      'active' => '1',
-      'cardinality' => '1',
-    ),
-
-    'field_instance' => array(
-      'default_value' => NULL,
-      'deleted' => '0',
-      'description' => 'This is the help text for the MUGL field of the Multigraph content type.',
-      'display' => array(
-        'default' => array(
-          'label' => 'hidden',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => '3',
-        ),
-        'teaser' => array(
-          'label' => 'above',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
-        ),
-      ),
-      'field_name' => 'field_multigraph_mugl',
-      'label' => 'MUGL',
-      'required' => 0,
-      'settings' => array(
-        'text_processing' => '0',
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 1,
-        'module' => 'text',
-        'settings' => array(
-          'rows' => '5',
-        ),
-        'type' => 'text_textarea',
-        'weight' => '-1',
-      ),
-    ),
-  );
-
-  return $fields;
 }
 
 /**
@@ -265,7 +251,7 @@ function multigraph_uninstall() {
   // Loop over each of the fields defined by this module and delete
   // all instances of the field, their data, and the field itself.
   //foreach (array_keys(_multigraph_installed_fields()) as $field) {
-  foreach (_multigraph_fields() as $field) {
+  foreach (_multigraph_field_specs() as $field) {
     field_delete_field($field['field_config']['field_name']);
   }
 
