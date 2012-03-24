@@ -1,0 +1,8 @@
+; $Id$
+name = Multigraph
+description = A Multigraph content type
+package = NEMAC
+core = 7.x
+version = VERSION
+files[] = multigraph.install
+files[] = multigraph.module

@@ -1,0 +1,144 @@
+<?php
+// $Id$
+/**
+ * @file
+ * Install file for Multigraph module.
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * - Add the body field.
+ */
+function multigraph_install() {
+  node_types_rebuild();
+
+  // Create all the fields we are adding to our content type.
+  foreach (_multigraph_installed_fields() as $field) {
+    field_create_field($field);
+  }
+
+  // Create all the instances for our fields.
+  foreach (_multigraph_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = 'multigraph';
+    field_create_instance($instance);
+  }
+}
+
+/**
+ * Return a structured array defining the fields created by this content type.
+ */
+function _multigraph_installed_fields() {
+  $t = get_t();
+  return array(
+    'multigraph_mugl' => array(
+      'field_name'  => 'multigraph_mugl',
+      'label'       => $t('MUGL'),
+      'type'        => 'text',
+    ),
+    'multigraph_width' => array(
+      'field_name'  => 'multigraph_width',
+      'label'       => $t('WIDTH'),
+      'type'        => 'number_integer',
+    ),
+    'multigraph_description' => array(
+      'field_name'  => 'multigraph_description',
+      'label'       => $t('Description'),
+      'type'        => 'text',
+    ),
+  );
+}
+
+/**
+ * Return a structured array defining the instances for this content type.
+ */
+function _multigraph_installed_instances() {
+  $t = get_t();
+  return array(
+
+    'multigraph_mugl' => array(
+      'field_name'  => 'multigraph_mugl',
+      'type'        => 'text',
+      'label'       => $t('MUGL'),
+      'widget'      => array(
+        'type'    => 'text_textarea',
+	'settings' => array('rows' => 10),
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label'       => $t('MUGL-enl'),
+          'type' => 'text',
+        ),
+      ),
+    ),
+
+    'multigraph_width' => array(
+      'field_name'  => 'multigraph_width',
+      'type'        => 'number_integer',
+      'label'       => $t('Width'),
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label'       => $t('Width-enl'),
+          'type' => 'number_integer',
+        ),
+      ),
+    ),
+
+    'multigraph_description' => array(
+      'field_name'  => 'multigraph_description',
+      'type'        => 'text',
+      'label'       => $t('Description'),
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label'       => $t('Description-enl'),
+          'type' => 'text',
+        ),
+      ),
+    ),
+
+  );
+}
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function multigraph_uninstall() {
+  // Gather all the example content that might have been created while this
+  // module was enabled.  
+  $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+  $result = db_query($sql, array(':type' => 'multigraph'));
+  $nids = array();
+  foreach ($result as $row) {
+    $nids[] = $row->nid;
+  }
+
+  // Delete all the nodes at once
+  node_delete_multiple($nids);
+
+  // Loop over each of the fields defined by this module and delete
+  // all instances of the field, their data, and the field itself.
+  foreach (array_keys(_multigraph_installed_fields()) as $field) {
+    field_delete_field($field);
+  }
+
+  // Loop over any remaining field instances attached to the multigraph
+  // content type (such as the body field) and delete them individually.
+  $instances = field_info_instances('node', 'multigraph');
+  foreach ($instances as $instance_name => $instance) {
+    field_delete_instance($instance);
+  }
+
+  // Delete our content type
+  node_type_delete('multigraph');
+
+  // Purge all field infromation
+  field_purge_batch(1000);
+}
