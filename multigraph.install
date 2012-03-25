@@ -88,6 +88,64 @@ function _multigraph_field_specs() {
     'teaser_display_weight'   => 40,
   ));
 
+  $field_specs[] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_multigraph_swf',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values_function' => '_multigraph_available_swf_paths',
+      ),
+      'translatable' => '0',
+      'type' => 'list_text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'multigraph',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => 1,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_multigraph_swf',
+      'label' => 'SWF',
+      'description' => 'Choose the SWF for this Multigraph',
+      'required' => 1,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(),
+        'type' => 'options_select',
+        'weight' => '-3',
+      ),
+    ),
+  );
+
   return $field_specs;
 }
 
@@ -145,6 +203,52 @@ function _multigraph_textarea_field_spec($field_spec_values) {
         'teaser' => array(
           'label'    => $field_spec_values['teaser_display_label'],
           'settings' => array(),
+          'type'     => $field_spec_values['teaser_display_type'],
+          'weight'   => $field_spec_values['teaser_display_weight'],
+        ),
+      ),
+      'settings' => array(
+        'text_processing'    => '0',
+        'user_register_form' => FALSE,
+      ),
+    ),
+
+  );
+
+}
+
+function _multigraph_text_field_spec($field_spec_values) {
+
+  return array(
+
+    'field_config' => array(
+      'field_name'   => $field_spec_values['field_name'],
+      'type'         => 'text',
+      'cardinality'  => '1',
+      'active'       => '1',
+      'module'       => 'text',
+    ),
+
+    'field_instance' => array(
+      'field_name'  => $field_spec_values['field_name'],
+      'label'       => $field_spec_values['label'],
+      'description' => $field_spec_values['description'],
+      'required'    => $field_spec_values['required'],
+      'widget'      => array(
+        'active'      => 1,
+        'module'      => 'text',
+        'type'        => 'text',
+        'weight'      => $field_spec_values['widget_weight'],
+      ),
+      'display' => array(
+        'default' => array(
+          'label'    => $field_spec_values['default_display_label'],
+          'module'   => 'text',
+          'type'     => $field_spec_values['default_display_type'],
+          'weight'   => $field_spec_values['default_display_weight'],
+        ),
+        'teaser' => array(
+          'label'    => $field_spec_values['teaser_display_label'],
           'type'     => $field_spec_values['teaser_display_type'],
           'weight'   => $field_spec_values['teaser_display_weight'],
         ),

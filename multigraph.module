@@ -22,10 +22,40 @@ function multigraph_node_info() {
   );
 }
 
+function _multigraph_string_ends_with($string, $suffix) {
+  $suffix_len = strlen($suffix);
+  $string_len = strlen($string);
+  for ($i=1; $i<=$suffix_len; ++$i) {
+    if ($string[$string_len-$i] != $suffix[$suffix_len-$i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function _multigraph_available_swf_paths() {
+  $swf_dir = drupal_get_path('module', 'multigraph') . "/swfs";
+  $handle = opendir($swf_dir);
+  $swf_paths = array();
+  while (false !== ($entry = readdir($handle))) {
+    if (_multigraph_string_ends_with($entry, ".swf")) {
+      $swf_paths[] = $entry;
+    }
+  }
+  closedir($handle);
+  arsort($swf_paths);
+  return $swf_paths;
+}
+
 /**
  * Implement hook_form() with the standard default form.
  */
 function multigraph_form($node, $form_state) {
+  /*
+  foreach (_multigraph_available_swf_paths() as $swf_path) {
+    dsm($swf_path);
+  }
+  */
   return node_content_form($node, $form_state);
 }
 
@@ -130,27 +160,19 @@ function multigraph_load($nodes) {
 /**
  * Implement hook_view().
  */
- function multigraph_view($node, $view_mode) { 
-   if ($view_mode == 'full') {
-     $node->content['graph'] = array(
-       '#markup' => theme('graph', array('mugl'   => $node->field_multigraph_mugl['und']['0']['value'],
-					 'width'  => $node->field_multigraph_width['und']['0']['value'],
-					 'height' => $node->field_multigraph_height['und']['0']['value'])),
-       '#weight' => 0,
-     );
-     unset($node->field_multigraph_mugl);
-   }
-
- // Add and theme the sponsor so it appears when the multigraph is displayed
-   //  if ($view_mode == 'full') {
-   //        $node->content['sponsor'] = array(
-   //        '#markup' => theme('sponsor', array('sponsor' => $node->sponsor, 'sponsor_id' => $node->nid)),
-   //        '#weight' => 100,
-   //      );
-   //  }
-//   dsm($node);
+function multigraph_view($node, $view_mode) { 
+  if ($view_mode == 'full') {
+    $node->content['graph'] = array(
+      '#markup' => theme('graph',
+			 array('mugl'   => $node->field_multigraph_mugl['und']['0']['value'],
+			       'width'  => $node->field_multigraph_width['und']['0']['value'],
+			       'height' => $node->field_multigraph_height['und']['0']['value'])),
+      '#weight' => 0,
+    );
+    unset($node->field_multigraph_mugl);
+  }
   return $node; 
- } 
+} 
  
 
  
@@ -158,15 +180,11 @@ function multigraph_load($nodes) {
  * Implementation of hook_theme().
  */
 function multigraph_theme() {
-// define the variables and template associated with the sponsor field
   return array(
-    'graph' => array(
-      'variables' => array('graph' => NULL),
-      'template' => 'graph',
+    'graph' => array('variables' => array('mugl'   => NULL,
+					  'width'  => NULL,
+					  'height' => NULL),
+		     'template'  => 'graph',
     ),
-//    'sponsor' => array(
-//      'variables' => array('sponsor' => NULL, 'sponsor_id' => NULL),
-//      'template' => 'sponsor',
-//    ),
   );
 }
