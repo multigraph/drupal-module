@@ -90,58 +90,52 @@ function _multigraph_field_specs() {
 
   $field_specs[] = array(
     'field_config' => array(
-      'active' => '1',
-      'cardinality' => '1',
-      'deleted' => '0',
-      'entity_types' => array(),
-      'field_name' => 'field_multigraph_swf',
-      'foreign keys' => array(),
-      'indexes' => array(
-        'value' => array(
-          0 => 'value',
-        ),
-      ),
-      'module' => 'list',
-      'settings' => array(
-        'allowed_values_function' => '_multigraph_available_swf_paths',
+      'active' 		      => '1',
+      'cardinality' 	      => '1',
+      'deleted' 	      => '0',
+      'entity_types' 	      => array(),
+      'field_name' 	      => 'field_multigraph_swf',
+      'module' 		      => 'list',
+      'settings' 	      => array(
+        'allowed_values_function' => '_multigraph_available_swf_path_allowed_values',
       ),
       'translatable' => '0',
       'type' => 'list_text',
     ),
     'field_instance' => array(
-      'bundle' => 'multigraph',
-      'default_value' => NULL,
-      'deleted' => '0',
-      'description' => '',
+      'bundle' 		      => 'multigraph',
+      'default_value' 	      => NULL,
+      'deleted' 	      => '0',
+      'description' 	      => '',
       'display' => array(
         'default' => array(
-          'label' => 'above',
+          'label' => 'hidden',
           'module' => 'list',
           'settings' => array(),
-          'type' => 'list_default',
+          'type' => 'hidden',
           'weight' => 1,
         ),
         'teaser' => array(
-          'label' => 'above',
+          'label' => 'hidden',
           'settings' => array(),
           'type' => 'hidden',
           'weight' => 0,
         ),
       ),
-      'entity_type' => 'node',
-      'field_name' => 'field_multigraph_swf',
-      'label' => 'SWF',
-      'description' => 'Choose the SWF for this Multigraph',
-      'required' => 1,
-      'settings' => array(
+      'entity_type' 	      => 'node',
+      'field_name' 	      => 'field_multigraph_swf',
+      'label' 		      => 'SWF',
+      'description' 	      => 'Choose the SWF for this Multigraph',
+      'required' 	      => 1,
+      'settings' 	      => array(
         'user_register_form' => FALSE,
       ),
-      'widget' => array(
-        'active' => 1,
-        'module' => 'options',
+      'widget' 	   	      => array(
+        'active'   => 1,
+        'module'   => 'options',
         'settings' => array(),
-        'type' => 'options_select',
-        'weight' => '-3',
+        'type' 	   => 'options_select',
+        'weight'   => '60',
       ),
     ),
   );
