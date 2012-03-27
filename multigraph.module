@@ -71,7 +71,7 @@ function _multigraph_available_swf_paths() {
   $handle = opendir($swf_dir);
   $swf_paths = array();
   while (false !== ($entry = readdir($handle))) {
-    if (_multigraph_string_ends_with($entry, ".swf")) {
+    if (preg_match('|^multigraph.*\.swf$|i', $entry)) {
       $swf_paths[] = $entry;
     }
   }
