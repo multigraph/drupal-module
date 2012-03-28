@@ -208,7 +208,7 @@ function multigraph_view($node, $view_mode) {
                                                               . "multigraph/mugl/" . $node->nid,
                                                               base_path()
                                                               . drupal_get_path('module', 'multigraph')
-                                                              . "/swfs/"
+                                                              . "/multigraph/"
                                                               . $swf))
                          ),
       '#weight' => 0,

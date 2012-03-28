@@ -9,7 +9,7 @@ function _multigraph_available_swf_path_allowed_values() {
 }
 
 function _multigraph_available_swf_paths() {
-  $swf_dir = drupal_get_path('module', 'multigraph') . '/swfs';
+  $swf_dir = drupal_get_path('module', 'multigraph') . '/multigraph';
   $handle = opendir($swf_dir);
   $swf_paths = array();
   while (false !== ($entry = readdir($handle))) {

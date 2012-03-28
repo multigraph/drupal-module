@@ -109,7 +109,7 @@ function _multigraph_edit_tag( $matches )
     $src = $base_url . "/multigraph/mugl/" . $nid;
   }
 
-  $swf_dir = drupal_get_path('module', 'multigraph_filter') . "/swfs";
+  $swf_dir = drupal_get_path('module', 'multigraph_filter') . "/multigraph";
 
   return _multigraph_object_embed_string($width,$height,$src,
 					 $base_path . $swf_dir . "/" . $swf);
