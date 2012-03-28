@@ -1,0 +1,117 @@
+<?php
+
+require_once DRUPAL_ROOT.'/'.drupal_get_path('module','multigraph_filter')."/multigraph_functions.inc";
+
+function multigraph_filter_filter_info() {
+  return array(
+    'multigraph' => array(
+      'title'       	 => 'Replace <multigraph> tag markup with interactive Multigraphs.',
+      'description' 	 => '',
+      'prepare callback' => 'multigraph_filter_filter_prepare', 
+      'process callback' => 'multigraph_filter_filter_process',
+      'cache' 		 => FALSE,
+      'tips'  		 => 'multigraph_filter_filter_tips',
+      'weight' 		 => -100, // A default weight for the filter in new text formats
+      //
+      // 'settings callback' => The name of a function that returns configuration form elements
+      //                        for the filter. See hook_filter_FILTER_settings() for details.
+      // 'default settings' =>  An associative array containing default settings for the filter,
+      //                        to be applied when the filter has not been configured yet.
+    )
+  );     
+}
+
+function multigraph_filter_filter_prepare($text, $filter, $format, $langcode, $cache, $cache_id) {
+  // Escape <multigraph ... />
+  $text = preg_replace('|<multigraph\s(.*)/>|', "[multigraph]$1[/multigraph]", $text);
+  return $text;
+}
+
+function multigraph_filter_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  $text = preg_replace_callback('|\[multigraph\](.+?)\[/multigraph\]|', '_multigraph_edit_tag', $text);
+  return $text;
+}
+
+function multigraph_filter_filter_tips($filter, $format, $long) {
+  if ($long) {
+    return t('&lt;<multigraph ... /&gt; tags turn into interactive Multigraph graphs.');
+  } else {
+    return t('&lt;<multigraph ... /&gt; tags turn into interactive Multigraph graphs.');
+  }
+}
+
+function _multigraph_edit_tag( $matches )
+{
+  global $base_url, $base_path;
+
+  $width = FALSE;
+  $height = FALSE;
+  $src = FALSE;
+  $swf = FALSE;
+  $nid = FALSE;
+  $node = null;
+  
+  $assignments = preg_split('/\s+/', trim($matches[1]));
+  $args = array();
+  for ($i=0; $i<count($assignments); ++$i) {
+    list($var,$val) = preg_split('/=/', $assignments[$i]);
+    $val = preg_replace('/^"(.*)"$/', "$1", $val);
+    $args[$var] = $val;
+  }
+  if (array_key_exists('width',$args))  { $width        = $args['width']; }
+  if (array_key_exists('height',$args)) { $height       = $args['height']; }
+  if (array_key_exists('src',$args))    { $src          = $args['src']; }
+  if (array_key_exists('swf',$args))    { $swf          = $args['swf']; }
+  if (array_key_exists('nid',$args))    { $nid          = $args['nid']; }
+
+  // if a nid wasn't specified, check the src value, if present, to see if it looks
+  // like a "multigraph/mugl/%" url from this site, and if so, get the nid value from it
+  if (!$nid && $src) {
+    if (preg_match("|^$base_url/multigraph/mugl/(\d+)$|", $src, $matches)) {
+      // absolute url from this site
+      $nid  = $matches[1];
+    } else {
+      if (!preg_match('|^http://|', $src) && preg_match('|multigraph/mugl/(\d+)$|', $src, $matches)) {
+	// relative url --- it must be from this site
+	$nid = $matches[1];
+      }
+    }
+  }
+
+  // if a swf file wasn't specified, load it from the nid if present, otherwise
+  // use the first available swf
+  if (!$swf) {
+    if ($nid) {
+      $node = node_load($nid);
+      if ($node) {
+	$swf = $node->field_multigraph_swf['und']['0']['value'];
+      }
+    } else {
+      $swf_paths = _multigraph_available_swf_paths('multigraph_filter');
+      $swf = $swf_paths[count($swf_paths)-1];
+    }
+  }
+
+  // if a width wasn't specified, load it from the node if present, otherwise use default
+  if (!$width) {
+    if (!$node) { $node = node_load($nid); }
+    $width = $node->field_multigraph_width['und']['0']['value'];
+  }
+
+  // if a height wasn't specified, load it from the node if present, otherwise use default
+  if (!$height) {
+    if (!$node) { $node = node_load($nid); }
+    $height = $node->field_multigraph_height['und']['0']['value'];
+  }
+
+  // if a src wasn't specified, construct it from the nid
+  if (!$src) {
+    $src = $base_url . "/multigraph/mugl/" . $nid;
+  }
+
+  $swf_dir = drupal_get_path('module', 'multigraph_filter') . "/swfs";
+
+  return _multigraph_object_embed_string($width,$height,$src,
+					 $base_path . $swf_dir . "/" . $swf);
+}
+

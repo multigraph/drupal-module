@@ -1,8 +1,8 @@
 ; $Id$
 name = Multigraph
-description = A Multigraph content type
-package = NEMAC
+description = Defines a content type for Multigraph graphs, allowing users to create nodes whose body contains the XML source (MUGL) for a graph, but which displays the graph itself when viewed.
+package = Multigraph
 core = 7.x
-version = VERSION
+version = "7.x-1.0-alpha1"
 files[] = multigraph.install
 files[] = multigraph.module

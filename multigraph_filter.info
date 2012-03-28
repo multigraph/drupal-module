@@ -1,0 +1,7 @@
+; $Id$
+name = Multigraph Filter
+description = Defines a text input filter for embedding Multigraphs into content.
+package = Multigraph
+core = 7.x
+version = "7.x-1.0-alpha1"
+files[] = multigraph_filter.module

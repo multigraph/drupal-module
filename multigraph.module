@@ -1,14 +1,14 @@
 <?php
-
-/**
- * @file
- * This module provides a node type called Multigraph
- */
+error_log('>>> require multigraph_functions.inc');
+require_once DRUPAL_ROOT.'/'.drupal_get_path('module','multigraph')."/multigraph_functions.inc";
+error_log('<<< require multigraph_functions.inc');
 
 /**
  * Implements hook_node_info() to provide our multigraph type.
  */
 function multigraph_node_info() {
+  error_log('>>> multigraph_node_info');
+  error_log('<<< multigraph_node_info');
   return array(
     'multigraph' => array(
       'name'        => t('Multigraph'),
@@ -46,6 +46,7 @@ function _multigraph_muglservice_controller($nid) {
   exit();
 }
 
+/*
 function _multigraph_string_ends_with($string, $suffix) {
   $suffix_len = strlen($suffix);
   $string_len = strlen($string);
@@ -56,53 +57,31 @@ function _multigraph_string_ends_with($string, $suffix) {
   }
   return true;
 }
-
-function _multigraph_available_swf_path_allowed_values() {
-  $allowed_values = array();
-  foreach (_multigraph_available_swf_paths() as $swf_path) {
-    $allowed_values[$swf_path] = $swf_path;
-  }
-  return $allowed_values;
-}
-
-function _multigraph_available_swf_paths() {
-  $swf_dir = drupal_get_path('module', 'multigraph') . "/swfs";
-  $handle = opendir($swf_dir);
-  $swf_paths = array();
-  while (false !== ($entry = readdir($handle))) {
-    if (preg_match('|^multigraph.*\.swf$|i', $entry)) {
-      $swf_paths[] = $entry;
-    }
-  }
-  closedir($handle);
-  arsort($swf_paths);
-  return $swf_paths;
-}
+*/
 
 /**
  * Implement hook_form() with the standard default form.
  */
 function multigraph_form($node, $form_state) {
-  /*
-  foreach (_multigraph_available_swf_paths() as $swf_path) {
-    dsm($swf_path);
-  }
-  */
+  error_log('>>> multigraph_form');
   $form = node_content_form($node, $form_state);
+  error_log('<<< multigraph_form');
   return $form;
 }
 
 
 function multigraph_form_alter(&$form, $form_state, $form_id) {
+  error_log('>>> multigraph_form_alter');
   if ($form_id == 'multigraph_node_form') {
     if ((count($form['field_multigraph_swf']['und']['#default_value']) <= 0)
 	||
 	(!in_array($form['field_multigraph_swf']['und']['#default_value']['0'],
 		   $form['field_multigraph_swf']['und']['#options']))) {
-      $swf_paths = _multigraph_available_swf_paths();
+      $swf_paths = _multigraph_available_swf_paths('multigraph');
       $form['field_multigraph_swf']['und']['#default_value'] = $swf_paths[count($swf_paths)-1];
     }
   }
+  error_log('<<< multigraph_form_alter');
 }
 
 
@@ -159,43 +138,50 @@ function multigraph_permission() {
 /**
  * Implementation of hook_validate().
  */
+/*
 function multigraph_validate($node) {
   // Enforce a minimum character count of 2 on company names.
 //  if (isset($node->multigraph_company) && strlen($node->multigraph_company['und'][0]['value']) < 2) {
 //    form_set_error('multigraph_company', t('The company name line of your multigraph is too short. You need at least 2 characters.'), $limit_validation_errors = NULL);
 //  }
 }
+*/
 
 
 /**
  * Implementation of hook_insert().
  */
+/*
 function multigraph_insert($node) {
 // log details of the multigraphing to watchdog  
 //  watchdog('multigraph', 'A new multigraph titled: '.$node->title.' for company: '.$node->multigraph_company['und'][0]['value'].' was added by UID: '.$node->uid, $variables = array(), WATCHDOG_NOTICE, $link = 'node/'.$node->nid);  
 }
-
+*/
 
 /**
  * Implementation of hook_update().
  */
+/*
  function multigraph_update($node) { 
 // log details of the multigraphing to watchdog  
 //  watchdog('multigraph', 'A multigraph titled: '.$node->title.' for company: '.$node->multigraph_company['und'][0]['value'].' was updated by UID: '.$node->uid, $variables = array(), WATCHDOG_NOTICE, $link = 'node/'.$node->nid);
  }
+*/
  
 /**
  * Implementation of hook_delete().
  */
+/*
  function multigraph_delete($node) { 
 // log details of the multigraphing to watchdog  
 //  watchdog('multigraph', 'A multigraph titled: '.$node->title.' for company: '.$node->multigraph_company['und'][0]['value'].' was deleted by UID: '.$node->uid, $variables = array(), WATCHDOG_NOTICE, $link = 'node/'.$node->nid);
  } 
- 
+*/
  
 /**
  * Implementation of hook_load().
  */
+/*
 function multigraph_load($nodes) { 
 // Add a new element to the node at load time for storing the multigraphing sponsor information
 //  foreach ($nodes as $node) {
@@ -203,43 +189,47 @@ function multigraph_load($nodes) {
 //  }  
 //  return $node;
 } 
+*/
  
 /**
  * Implement hook_view().
  */
 function multigraph_view($node, $view_mode) { 
+  error_log('<<< multigraph_view');
   if ($view_mode == 'full') {
     $width  = $node->field_multigraph_width['und']['0']['value'];
     $height = $node->field_multigraph_height['und']['0']['value'];
     $swf    = $node->field_multigraph_swf['und']['0']['value'];
     $node->content['graph'] = array(
       '#markup' => theme('graph',
-			 array('nid'    => $node->nid,
-			       'mugl'   => $node->field_multigraph_mugl['und']['0']['value'],
-			       'width'  => $node->field_multigraph_width['und']['0']['value'],
-			       'height' => $node->field_multigraph_height['und']['0']['value'],
-			       'swf'    => $node->field_multigraph_swf['und']['0']['value'],
-			       'flashcode' => _multigraph_object_embed_string($width,$height,
-									      base_path()
-									      . "multigraph/mugl/" . $node->nid,
-									      base_path()
-									      . drupal_get_path('module', 'multigraph')
-									      . "/swfs/"
-									      . $swf))
-			 ),
+         array('nid'    => $node->nid,
+               'mugl'   => $node->field_multigraph_mugl['und']['0']['value'],
+               'width'  => $node->field_multigraph_width['und']['0']['value'],
+               'height' => $node->field_multigraph_height['und']['0']['value'],
+               'swf'    => $node->field_multigraph_swf['und']['0']['value'],
+               'flashcode' => _multigraph_object_embed_string($width,$height,
+                                                              base_path()
+                                                              . "multigraph/mugl/" . $node->nid,
+                                                              base_path()
+                                                              . drupal_get_path('module', 'multigraph')
+                                                              . "/swfs/"
+                                                              . $swf))
+                         ),
       '#weight' => 0,
     );
     unset($node->field_multigraph_mugl);
   }
+  error_log('<<< multigraph_view');
   return $node; 
 }
- 
 
  
 /**
  * Implementation of hook_theme().
  */
 function multigraph_theme() {
+  error_log('>>> multigraph_theme');
+  error_log('<<< multigraph_theme');
   return array(
     'graph' => array('variables' => array('nid'    => NULL,
 					  'mugl'   => NULL,
@@ -250,157 +240,4 @@ function multigraph_theme() {
 		     'template'  => 'graph',
     ),
   );
-}
-
-function _multigraph_object_embed_string($width,$height,$mugl_url,$swf) {
-    return (''
-    	   . '<object'
-	   .    ' id="mgid"'
-           .    ' classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"'
-           .    ' width="'.$width.'"'
-           .    ' height="'.$height.'"'
-           .    ' codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0">'
-           .   '<param name="quality" value="best" />'
-           .   '<param name="scale" value="exactfit" />'
-           .   '<param name="wmode" value="opaque" />'
-           .   '<param name="bgcolor" value="#ffffff" />'
-           .   '<param name="src" value="'.$swf.'" />'
-           .   '<param name="name" value="mgid" />'
-           .   '<param name="allowfullscreen" value="false" />'
-           .   '<param name="allowScriptAccess" value="sameDomain" />'
-           .   "<param name='flashvars' value='muglfile=".$mugl_url."'>"
-           .   '<param name="align" value="middle" />'
-           .   '<embed'
-           .      ' id="mgid"'
-           .      ' type="application/x-shockwave-flash"'
-           .      ' width="'.$width.'"'
-           .      ' height="'.$height.'"'
-           .      ' src="'.$swf.'"'
-           .      ' name="mgid"'
-           .      ' bgcolor="#ffffff"'
-           .      ' wmode="opaque"'
-           .      ' scale="exactfit"'
-           .      ' quality="best"'
-           .      ' allowfullscreen="false"'
-           .      ' allowscriptaccess="sameDomain"'
-           .      " flashvars='muglfile=".$mugl_url."'"
-           .      ' align="middle">'
-           .   '</embed>'
-           . '</object>'
-  );
-}
-
-function multigraph_filter_prepare($text, $filter, $format, $langcode, $cache, $cache_id) {
-  // Escape <multigraph ... />
-  $text = preg_replace('|<multigraph\s(.*)/>|', "[multigraph]$1[/multigraph]", $text);
-  return $text;
-}
-
-function _multigraph_edit_tag( $matches )
-{
-  global $base_url, $base_path;
-
-  $width = FALSE;
-  $height = FALSE;
-  $src = FALSE;
-  $swf = FALSE;
-  $nid = FALSE;
-  $node = null;
-  
-  $assignments = preg_split('/\s+/', trim($matches[1]));
-  $args = array();
-  for ($i=0; $i<count($assignments); ++$i) {
-    list($var,$val) = preg_split('/=/', $assignments[$i]);
-    $val = preg_replace('/^"(.*)"$/', "$1", $val);
-    $args[$var] = $val;
-  }
-  if (array_key_exists('width',$args))  { $width        = $args['width']; }
-  if (array_key_exists('height',$args)) { $height       = $args['height']; }
-  if (array_key_exists('src',$args))    { $src          = $args['src']; }
-  if (array_key_exists('swf',$args))    { $swf          = $args['swf']; }
-  if (array_key_exists('nid',$args))    { $nid          = $args['nid']; }
-
-  // if a nid wasn't specified, check the src value, if present, to see if it looks
-  // like a "multigraph/mugl/%" url from this site, and if so, get the nid value from it
-  if (!$nid && $src) {
-    if (preg_match("|^$base_url/multigraph/mugl/(\d+)$|", $src, $matches)) {
-      // absolute url from this site
-      $nid  = $matches[1];
-    } else {
-      if (!preg_match('|^http://', $src) && preg_match('|multigraph/mugl/(\d+)$|', $src, $matches)) {
-	// relative url --- it must be from this site
-	$nid = $matches[1];
-      }
-    }
-  }
-
-  // if a swf file wasn't specified, load it from the nid if present, otherwise
-  // use the first available swf
-  if (!$swf) {
-    if ($nid) {
-      $node = node_load($nid);
-      if ($node) {
-	$swf = $node->field_multigraph_swf['und']['0']['value'];
-      }
-    } else {
-      $swf_paths = _multigraph_available_swf_paths();
-      $swf = $swf_paths[count($swf_paths)-1];
-    }
-  }
-
-  // if a width wasn't specified, load it from the node if present, otherwise use default
-  if (!$width) {
-    if (!$node) { $node = node_load($nid); }
-    $width = $node->field_multigraph_width['und']['0']['value'];
-  }
-
-  // if a height wasn't specified, load it from the node if present, otherwise use default
-  if (!$height) {
-    if (!$node) { $node = node_load($nid); }
-    $height = $node->field_multigraph_height['und']['0']['value'];
-  }
-
-  // if a src wasn't specified, construct it from the nid
-  if (!$src) {
-    $src = $base_url . "/multigraph/mugl/" . $nid;
-  }
-
-  $swf_dir = drupal_get_path('module', 'multigraph') . "/swfs";
-
-  return _multigraph_object_embed_string($width,$height,$src,
-					 $base_path . $swf_dir . "/" . $swf);
-}
-
-function multigraph_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
-  $text = preg_replace_callback('|\[multigraph\](.+?)\[/multigraph\]|', '_multigraph_edit_tag', $text);
-  return $text;
-}
-
-function multigraph_filter_tips($filter, $format, $long) {
-  if ($long) {
-    return t('&lt;<multigraph ... /&gt; tags turn into interactive Multigraph graphs.');
-  }
-  else {
-    return t('&lt;<multigraph ... /&gt; tags turn into interactive Multigraph graphs.');
-  }
-}
-
-
-function multigraph_filter_info() {
-  return array(
-    'multigraph' => array(
-      'title'       	 => 'Replace <multigraph> tag markup with interactive Multigraphs.',
-      'description' 	 => '',
-      'prepare callback' => 'multigraph_filter_prepare', 
-      'process callback' => 'multigraph_filter_process',
-      'cache' 		 => FALSE,
-      'tips'  		 => 'multigraph_filter_tips',
-      'weight' 		 => -100, // A default weight for the filter in new text formats
-      //
-      // 'settings callback' => The name of a function that returns configuration form elements
-      //                        for the filter. See hook_filter_FILTER_settings() for details.
-      // 'default settings' =>  An associative array containing default settings for the filter,
-      //                        to be applied when the filter has not been configured yet.
-    )
-  );     
 }
