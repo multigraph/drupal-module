@@ -1,9 +1,6 @@
 <?php
-// $Id$
-/**
- * @file
- * Install file for Multigraph module.
- */
+
+require_once DRUPAL_ROOT.'/'.drupal_get_path('module','multigraph')."/multigraph_functions.inc";
 
 /**
  * Implements hook_install().

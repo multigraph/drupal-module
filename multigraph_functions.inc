@@ -1,15 +1,15 @@
 <?php
 
-function _multigraph_available_swf_path_allowed_values($modulename) {
+function _multigraph_available_swf_path_allowed_values() {
   $allowed_values = array();
-  foreach (_multigraph_available_swf_paths($modulename) as $swf_path) {
+  foreach (_multigraph_available_swf_paths() as $swf_path) {
     $allowed_values[$swf_path] = $swf_path;
   }
   return $allowed_values;
 }
 
-function _multigraph_available_swf_paths($modulename) {
-  $swf_dir = drupal_get_path('module', $modulename) . "/swfs";
+function _multigraph_available_swf_paths() {
+  $swf_dir = drupal_get_path('module', 'multigraph') . '/swfs';
   $handle = opendir($swf_dir);
   $swf_paths = array();
   while (false !== ($entry = readdir($handle))) {
